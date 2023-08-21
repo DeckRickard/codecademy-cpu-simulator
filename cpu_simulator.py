@@ -6,11 +6,8 @@ opcode_dict = {
 }
 
 class CPU:
-    def __init__(self, control_unit, ALU, register, memory_bus) -> None:
+    def __init__(self, control_unit) -> None:
         self.control_unit =  control_unit
-        self.ALU = ALU
-        self.register = register
-        self.memory_bus =  memory_bus
 
 # Interprets assembly language instruction (opcode, register_1, register_2, destination_register) and converts it to binary.
     def instruction(self, instruction:str):
@@ -31,18 +28,24 @@ class CPU:
         
 
 class Control_Unit:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, ALU) -> None:
+        self.ALU = ALU
 
-    def send_instructions(opcode, operands):
-        pass
+
+    def send_instructions(self, opcode:int, operands:list):
+        register_1, register_2 = operands[0], operands[1]
+        if opcode == 0:
+            self.ALU.add(register_1, register_2)
 
 
 class ALU:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, register, memory_bus) -> None:
+        self.register = register
+        self.memory_bus =  memory_bus
 
     # Function for various operations below.
+    def add(self, register_1, register_2):
+        print(f"Adding {int(register_1)} and {int(register_2)}")
 
 class Register:
     def __init__(self, register_size) -> None:
@@ -64,6 +67,5 @@ class Memory_Bus:
     def retrieve(address):
         pass
 
-test = CPU(None, None, None, None)
-test_1 = "add 1 4 8"
-test.instruction(test_1)
+test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
+test_cpu.control_unit.send_instructions(0, [0, 0])
