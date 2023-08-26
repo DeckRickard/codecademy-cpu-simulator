@@ -36,9 +36,9 @@ class Control_Unit:
     def send_instructions(self, opcode:int, operands:list):
         print("Sending instructions to the ALU...")
         register_1, register_2, destination_register = operands[0], operands[1], operands[2]
-        if opcode == 0:
+        if opcode == bin(0):
             print("This is an add operation.")
-            self.ALU.add(register_1, register_2, destination_register)
+            self.ALU.add(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
 
         # When operation is complete, display state of register and memory.
         self.ALU.register.print_register()
@@ -52,9 +52,9 @@ class ALU:
 
     # Function for various operations below.
     def add(self, register_1, register_2, destination_register):
-        print(f"Adding {int(register_1)} and {int(register_2)}")
+        print(f"Adding {register_1} and {register_2}")
         value = register_1 + register_2
-        print("Passing value to destination register...")
+        print("Passing {} to destination register {}".format(value, destination_register))
         self.register.insert(destination_register, value)
 
 
@@ -91,4 +91,6 @@ class Memory_Bus:
         print(self.memory)
 
 test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
-test_cpu.control_unit.send_instructions(0, [3, 4, 2])
+instructions = test_cpu.instruction('add 3 4 7')
+# print(instructions)
+test_cpu.control_unit.send_instructions(instructions[0], instructions[1])
