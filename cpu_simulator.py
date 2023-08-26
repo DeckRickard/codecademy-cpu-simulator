@@ -1,6 +1,7 @@
 # TO-DO:
 # - Create logic for dealing with register/memory addresses in instructions
 # - Implement a way for instructions to be read from an external file.
+# - Implement error and input checking.
 
 
 
@@ -19,7 +20,7 @@ class CPU:
             "lw": 5
         }
 
-        print("Converting instruction from machine language to binary...")
+        print("Converting instruction from machine language to binary...\n")
         instruction_array = instruction.split(' ')
         
         # We'll deal properly with the opcode later.
@@ -32,7 +33,7 @@ class CPU:
         # Handles conversion of opcode
         opcode_bin = bin(opcode_dict[opcode])
 
-        print(opcode_bin, binary_instructions)
+        print(opcode_bin, binary_instructions, '\n')
         return opcode_bin, binary_instructions
         
 
@@ -42,7 +43,7 @@ class Control_Unit:
 
 
     def send_instructions(self, opcode:int, operands:list):
-        print("Sending instructions to the ALU...")
+        print("Sending instructions to the ALU...\n")
         if len(operands) == 3:
             register_1, register_2, destination_register = operands[0], operands[1], operands[2]
         elif len(operands) == 2:
@@ -51,22 +52,22 @@ class Control_Unit:
             destination_register = operands[0]
         
         if opcode == bin(0):
-            print("This is an add operation.")
+            print("This is an add operation.\n")
             self.ALU.add(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
         elif opcode == bin(1):
-            print("This is a subtraction operation.")
+            print("This is a subtraction operation.\n")
             self.ALU.subtract(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
         elif opcode == bin(2):
-            print("This is a multiplication operation.")
+            print("This is a multiplication operation.\n")
             self.ALU.multiply(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
         elif opcode == bin(3):
-            print("This is a divison operation.")
+            print("This is a divison operation.\n")
             self.ALU.divide(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
         elif opcode == bin(4):
-            print("This is a save word operation.")
+            print("This is a save word operation.\n")
             self.ALU.sw(int(register_1, 2), int(destination_register, 2))
         elif opcode == bin(5):
-            print("This is a load word operation.")
+            print("This is a load word operation.\n")
             self.ALU.lw(int(destination_register, 2))
 
         # When operation is complete, display state of register and memory.
@@ -126,6 +127,7 @@ class Register:
     def print_register(self):
         print("State of register: \n")
         print(self.register)
+        print('\n')
 
 class Memory_Bus:
     def __init__(self, size) -> None:
@@ -142,6 +144,7 @@ class Memory_Bus:
     def print_memory(self):
         print("State of Memory: \n")
         print(self.memory)
+        print('\n')
 
 test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
 instructions = test_cpu.instruction('lw 1')
