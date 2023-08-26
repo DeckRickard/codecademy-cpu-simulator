@@ -1,15 +1,8 @@
 # TO-DO:
-# - Implement the remaining opcodes
 # - Create logic for dealing with register/memory addresses in instructions
+# - Implement a way for instructions to be read from an external file.
 
 
-
-opcode_dict = {
-    "add": 0,
-    "sub": 1,
-    "mult": 2,
-    "div": 3
-}
 
 class CPU:
     def __init__(self, control_unit) -> None:
@@ -17,7 +10,15 @@ class CPU:
 
 # Interprets assembly language instruction (opcode, register_1, register_2, destination_register) and converts it to binary.
     def instruction(self, instruction:str):
-        
+        opcode_dict = {
+            "add": 0,
+            "sub": 1,
+            "mult": 2,
+            "div": 3,
+            "sw": 4,
+            "lw": 5
+        }
+
         print("Converting instruction from machine language to binary...")
         instruction_array = instruction.split(' ')
         
@@ -42,7 +43,13 @@ class Control_Unit:
 
     def send_instructions(self, opcode:int, operands:list):
         print("Sending instructions to the ALU...")
-        register_1, register_2, destination_register = operands[0], operands[1], operands[2]
+        if len(operands) == 3:
+            register_1, register_2, destination_register = operands[0], operands[1], operands[2]
+        elif len(operands) == 2:
+            register_1, destination_register = operands[0], operands[1]
+        elif len(operands) == 1:
+            destination_register = operands[0]
+        
         if opcode == bin(0):
             print("This is an add operation.")
             self.ALU.add(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
@@ -55,6 +62,12 @@ class Control_Unit:
         elif opcode == bin(3):
             print("This is a divison operation.")
             self.ALU.divide(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
+        elif opcode == bin(4):
+            print("This is a save word operation.")
+            self.ALU.sw(int(register_1, 2), int(destination_register, 2))
+        elif opcode == bin(5):
+            print("This is a load word operation.")
+            self.ALU.lw(int(destination_register, 2))
 
         # When operation is complete, display state of register and memory.
         self.ALU.register.print_register()
@@ -91,6 +104,12 @@ class ALU:
         print("Passing {} to destination register {}".format(value, destination_register))
         self.register.insert(destination_register, value)
 
+    def sw(self, value, destination_register):
+        pass
+
+    def lw(self, target_register):
+        pass
+
 
 class Register:
     def __init__(self, register_size) -> None:
@@ -125,6 +144,5 @@ class Memory_Bus:
         print(self.memory)
 
 test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
-instructions = test_cpu.instruction('div 100 10 7')
-# print(instructions)
+instructions = test_cpu.instruction('lw 1')
 test_cpu.control_unit.send_instructions(instructions[0], instructions[1])
