@@ -27,8 +27,16 @@ class CPU:
         opcode = instruction_array.pop(0)
         binary_instructions = []
         for item in instruction_array:
-            item_int = int(item)
-            binary_instructions.append(bin(item_int))
+            # The below logic handles the removal of brackets, and gives the operand a preceding number to determine if this is a register address, a memory address, or a directly inserted number.
+            item_list = [*item]            
+            if item_list[0] and item_list[-1] in ('(', ')'):
+                operand = [1, int(item.strip('()'))]
+            elif item_list[0] and item_list[-1] in ('{', '}'):
+                operand = [2, int(item.strip('{}'))]
+            else:
+                operand = [0, int(item)]
+
+            binary_instructions.append([bin(item) for item in operand])
 
         # Handles conversion of opcode
         opcode_bin = bin(opcode_dict[opcode])
@@ -147,5 +155,7 @@ class Memory_Bus:
         print('\n')
 
 test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
-instructions = test_cpu.instruction('lw 1')
-test_cpu.control_unit.send_instructions(instructions[0], instructions[1])
+#instructions = test_cpu.instruction('lw 1')
+#test_cpu.control_unit.send_instructions(instructions[0], instructions[1])
+test_cpu.instruction('add (1) (2) (3)')
+
