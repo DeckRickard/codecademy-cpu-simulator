@@ -21,7 +21,7 @@ class CPU:
 
         print("Converting instruction from machine language to binary...\n")
         instruction_array = instruction.split(' ')
-        
+
         # We'll deal properly with the opcode later.
         opcode = instruction_array.pop(0)
         binary_instructions = []
@@ -43,7 +43,18 @@ class CPU:
         opcode_bin = bin(opcode_dict[opcode])
 
         print(opcode_bin, binary_instructions, '\n')
-        return opcode_bin, binary_instructions
+        self.control_unit.send_instructions(opcode_bin, binary_instructions)
+        # return opcode_bin, binary_instructions
+    
+    # Function to read a file containing instructions and pass them to the CPU line-by-line.
+    def read_instructions_from_file(self, path_to_file):
+        with open(path_to_file) as file:
+            for line in file.readlines():
+                instruction = line.rstrip('\n')
+                print("performing operation {}".format(instruction))
+                self.instruction(instruction)
+
+
         
 
 class Control_Unit:
@@ -81,13 +92,13 @@ class Control_Unit:
                 self.ALU.add(register_1, register_2, destination_register)
             elif opcode == bin(1):
                 print("This is a subtraction operation.\n")
-                self.ALU.subtract(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
+                self.ALU.subtract(register_1, register_2, destination_register)
             elif opcode == bin(2):
                 print("This is a multiplication operation.\n")
-                self.ALU.multiply(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
+                self.ALU.multiply(register_1, register_2, destination_register)
             elif opcode == bin(3):
                 print("This is a divison operation.\n")
-                self.ALU.divide(int(register_1, 2), int(register_2, 2), int(destination_register, 2))
+                self.ALU.divide(register_1, register_2, destination_register)
 
         # When operation is complete, display state of register and memory.
         self.ALU.register.print_register()
@@ -97,7 +108,7 @@ class Control_Unit:
     def fetch(self, operand):
         # If the operand is a directly inserted value, the function can end.
         if int(operand[0], 2) == 0:
-            return [int(item, 2) for item in operand]
+            return int(operand[1], 2)
         elif int(operand[0], 2) == 1:
             return self.ALU.lw(int(operand[1], 2), False)
         elif int(operand[0], 2) == 2:
@@ -177,7 +188,7 @@ class Register:
         print("Retrieving value from register at address: {}".format(address))
         value = self.register[address]
         print(value)
-        return value
+        return int(value)
     
     def print_register(self):
         print("State of register: \n")
@@ -196,7 +207,7 @@ class Memory_Bus:
         print("Retrieving value from memory at address: {}".format(address))
         value = self.memory[address]
         print(value)
-        return value
+        return int(value)
     
     def print_memory(self):
         print("State of Memory: \n")
@@ -204,14 +215,5 @@ class Memory_Bus:
         print('\n')
 
 test_cpu = CPU(Control_Unit(ALU(Register(32), Memory_Bus(32))))
-instruction_1 = test_cpu.instruction('sw 5 (1)')
-test_cpu.control_unit.send_instructions(instruction_1[0], instruction_1[1])
-instruction_2 = test_cpu.instruction('lw (1)')
-test_cpu.control_unit.send_instructions(instruction_2[0], instruction_2[1])
-instruction_3 = test_cpu.instruction('sw 5 (2)')
-test_cpu.control_unit.send_instructions(instruction_3[0], instruction_3[1])
-instruction_4 = test_cpu.instruction('lw (2)')
-test_cpu.control_unit.send_instructions(instruction_4[0], instruction_4[1])
-instruction_5 = test_cpu.instruction('add (1) (2) (5)')
-test_cpu.control_unit.send_instructions(instruction_5[0], instruction_5[1])
+test_cpu.read_instructions_from_file('instructions.txt')
 
