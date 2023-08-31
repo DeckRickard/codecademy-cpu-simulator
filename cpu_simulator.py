@@ -1,5 +1,4 @@
 # TO-DO:
-# - Implement a way for instructions to be read from an external file.
 # - Implement error and input checking.
 
 
@@ -13,6 +12,9 @@ class CPU:
 
         print("Converting instruction from machine language to binary...\n")
         instruction_array = instruction.split(" ")
+        # If the inputs are incorrectly formatted, the code will abort. 
+        if self.check_inputs(instruction_array, opcode_dict) != 0:
+            return 1
 
         # We'll deal properly with the opcode later.
         opcode = instruction_array.pop(0)
@@ -26,6 +28,7 @@ class CPU:
             # Curly brackets are used to signify a memory address.
             elif item_list[0] and item_list[-1] in ("{", "}"):
                 operand = [2, int(item.strip("{}"))]
+            # If the number is inserted on its own, then the number is directly inserted, denoted by a 0 in the first array index.
             else:
                 operand = [0, int(item)]
 
@@ -34,17 +37,44 @@ class CPU:
         # Handles conversion of opcode
         opcode_bin = bin(opcode_dict[opcode])
 
-        print(opcode_bin, binary_instructions, "\n")
+        # print(opcode_bin, binary_instructions, "\n")
         self.control_unit.send_instructions(opcode_bin, binary_instructions)
-        # return opcode_bin, binary_instructions
-
+        
     # Function to read a file containing instructions and pass them to the CPU line-by-line.
     def read_instructions_from_file(self, path_to_file):
         with open(path_to_file) as file:
             for line in file.readlines():
                 instruction = line.rstrip("\n")
                 print("performing operation {}".format(instruction))
-                self.instruction(instruction)
+                
+                # If any instruction fails input checking, then the whole operation will be aborted.
+                if self.instruction(instruction) == 1:
+                    return
+                
+    # Function for checking if the instruction is formatted correctly.
+    def check_inputs(self, instruction_array, opcode_dict):
+        # The validity of the opcode is checked.
+        if instruction_array[0] not in opcode_dict.keys() or instruction_array[0].isnumeric():
+            print("Invalid opcode.")
+            return 1
+        
+        # operands are checked.
+        for operand in instruction_array[1:]:
+            if operand[0] == '(' or operand[0] == '{':
+                operand_stripped = operand.strip("(){}")
+                if not operand_stripped.isnumeric():
+                    print("Operands must be numeric!")
+                    return 1
+                elif int(operand_stripped) > len(self.control_unit.ALU.register.register) or int(operand_stripped) > len(self.control_unit.ALU.memory_bus.memory):
+                    print("Cache or memory address out of bounds!")
+                    return 1
+            else:
+                if not operand.isnumeric():
+                    print("Operands must be numeric!")
+                    return 1
+            
+            # If no errors found, a 0 will be returned to indicate that checks were passed.
+            return 0
 
 
 class Control_Unit:
