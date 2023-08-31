@@ -1,3 +1,19 @@
+# INSTRUCTION FORMATTING:
+# Instructions for the CPU simulator must consist of an opcode (denoting the type of operation to be performed) and between 1 and 3 operands.
+# Operands can be directly inserted numbers or they can retrieve a value from a cache or memory address. 
+# () brackets denote a cache address
+# {} curly brackets denote a memory address
+# All mathematical operations are automatically saved to a particular address (destination_register), this must be specified in the instruction.
+#
+# Valid opcodes are:
+# "add": Adds two values together - add operand_1 operand_2 destination_register
+# "sub": Subtracts two values - sub operand_1 operand_2 destination_register
+# "mult": Multiples two numbers together - mult operand_1 operand_2 destination_register
+# "div": Divides two numbers - div operand_1 operand_2 destination_register
+# "sw": Saves a value to a cache or memory address - sw value destination_register
+# "lw": Returns the value found at a memory or cache address - lw register
+# Any lines beginning with a '#' are comments, and are ignored by the interpreter.
+# Enter your instructions, with a line return between each, below:
 sw 4 5 (8)
 sw 5 (1)
 sw 20 (2)

@@ -1,5 +1,12 @@
-# TO-DO:
-# - Implement error and input checking.
+#   _____ _____  _    _    _____ _                 _       _
+#  / ____|  __ \| |  | |  / ____(_)               | |     | |
+# | |    | |__) | |  | | | (___  _ _ __ ___  _   _| | __ _| |_ ___  _ __
+# | |    |  ___/| |  | |  \___ \| | '_ ` _ \| | | | |/ _` | __/ _ \| '__|
+# | |____| |    | |__| |  ____) | | | | | | | |_| | | (_| | || (_) | |
+#  \_____|_|     \____/  |_____/|_|_| |_| |_|\__,_|_|\__,_|\__\___/|_|
+# By Rowan Jeffery-Wall (DeckRicard on GitHub)
+# Instructions are fed to the CPU through the instructions.txt file, information can be found in that file about instruction formatting.
+# The size of cache and memory defaults to 32 registers, this can be changed by modified the values passed to the cache and memory constructor functions on line 274.
 
 
 class CPU:
@@ -12,7 +19,7 @@ class CPU:
 
         print("Converting instruction from machine language to binary...\n")
         instruction_array = instruction.split(" ")
-        # If the inputs are incorrectly formatted, the code will abort. 
+        # If the inputs are incorrectly formatted, the code will abort.
         if self.check_inputs(instruction_array, opcode_dict) != 0:
             return 1
 
@@ -39,40 +46,50 @@ class CPU:
 
         # print(opcode_bin, binary_instructions, "\n")
         self.control_unit.send_instructions(opcode_bin, binary_instructions)
-        
+
     # Function to read a file containing instructions and pass them to the CPU line-by-line.
     def read_instructions_from_file(self, path_to_file):
         with open(path_to_file) as file:
             for line in file.readlines():
+                # Any lines beginning with a '#' or whitespace are ignored.
+                if line[0] == '#' or line[0] == ' ':
+                    continue
                 instruction = line.rstrip("\n")
                 print("performing operation {}".format(instruction))
-                
+
                 # If any instruction fails input checking, then the whole operation will be aborted.
                 if self.instruction(instruction) == 1:
                     return
-                
+
     # Function for checking if the instruction is formatted correctly.
     def check_inputs(self, instruction_array, opcode_dict):
         # The validity of the opcode is checked.
-        if instruction_array[0] not in opcode_dict.keys() or instruction_array[0].isnumeric():
+        if (
+            instruction_array[0] not in opcode_dict.keys()
+            or instruction_array[0].isnumeric()
+        ):
             print("Invalid opcode.")
             return 1
-        
+
         # operands are checked.
         for operand in instruction_array[1:]:
-            if operand[0] == '(' or operand[0] == '{':
+            if operand[0] == "(" or operand[0] == "{":
                 operand_stripped = operand.strip("(){}")
                 if not operand_stripped.isnumeric():
                     print("Operands must be numeric!")
                     return 1
-                elif int(operand_stripped) > len(self.control_unit.ALU.register.register) or int(operand_stripped) > len(self.control_unit.ALU.memory_bus.memory):
+                elif int(operand_stripped) > len(
+                    self.control_unit.ALU.register.register
+                ) or int(operand_stripped) > len(
+                    self.control_unit.ALU.memory_bus.memory
+                ):
                     print("Cache or memory address out of bounds!")
                     return 1
             else:
                 if not operand.isnumeric():
                     print("Operands must be numeric!")
                     return 1
-            
+
             # If no errors found, a 0 will be returned to indicate that checks were passed.
             return 0
 
@@ -110,7 +127,7 @@ class Control_Unit:
                 bin_operands[1]
             )
             destination_register = [int(num, 2) for num in bin_operands[2]]
-            print(register_1, register_2, destination_register)
+            # print(register_1, register_2, destination_register)
 
             if opcode == bin(0):
                 print("This is an add operation.\n")
